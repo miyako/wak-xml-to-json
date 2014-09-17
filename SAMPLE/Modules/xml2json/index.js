@@ -74,16 +74,28 @@ function xml_unescape(str){
 }
 
 function xml_to_object(xmlcode){
-	var x=xmlcode.replace(/<\//g,"ß");
-	x=x.split("<");
+	var x=xmlcode.replace(/<\//g,"ß");	
+//	x=x.split(/</);
+	x=x.split(/(?:%0A|%0D|%09|%20)*<(?:%0A|%0D|%09|%20)*/m);
 	var y=[];
 	var level=0;
 	var opentags=[];
 	for (var i=1;i<x.length;i++){
-		var tagname=x[i].split(">")[0];
+//		var tagname=x[i].split(/>/)[0];
+		var tagname=x[i].split(/(?:%0A|%0D|%09|%20)*>(?:%0A|%0D|%09|%20)*/m)[0];
 		opentags.push(tagname);
 		level++
-		y.push(level+"<"+x[i].split("ß")[0]);
+		var sx = x[i].split("ß");
+		y.push(level+"<"+sx[0]);
+		
+		if(sx.length > 1){
+			if(sx[1].indexOf(tagname + ">") === 0){
+				var elementvalue = sx[1].substring((tagname + ">").length);
+				if(elementvalue.length !==0){
+					y.push(level+"<__value__>"+elementvalue);
+				}
+			}
+		}			
 		while(x[i].indexOf("ß"+opentags[opentags.length-1]+">")>=0){level--;opentags.pop()}
 	};
 	var oldniva=-1;
@@ -98,7 +110,7 @@ function xml_to_object(xmlcode){
 			var tabort=oldniva-niva+1;
 			for (var j=0;j<tabort;j++){objname=objname.substring(0,objname.lastIndexOf("."))}
 		};
-		tagnamn=tagnamn.replace(/-/g, '');
+		tagnamn=tagnamn.replace(/-/g, '').replace(/%3a|%0a|%0d|%09|%20/g, '');
 		objname+="."+tagnamn;
 		var pobject=objname.substring(0,objname.lastIndexOf("."));
 		if (eval("typeof "+pobject) != "object"){preeval+=pobject+"={value:"+pobject+"};\n"};
@@ -119,17 +131,12 @@ function xml_to_object(xmlcode){
 		} 
 		else {rest="{}"};
 		if(rest.charAt(0)=="'"){rest='unescape('+rest+')'};
-	//	var objnameEscaped = pobject+"['"+tagnamn+"']";
-		//because a tag name could contain operators like -
 		if (already && !eval(objname+".sort")){preeval+=objname+"=["+objname+"];\n"};
-	//	if (already && !eval(objnameEscaped+".sort")){preeval+=objnameEscaped+"=["+objnameEscaped+"];\n"};
 		var before="=";after="";
 		if (already){before=".push(";after=")"};
 		var toeval=preeval+objname+before+rest+after;
-	//	var toeval=preeval+objnameEscaped+before+rest+after;
 		eval(toeval);
 		if(eval(objname+".sort")){objname+="["+eval(objname+".length-1")+"]"};
-	//	if(eval(objnameEscaped+".sort")){objnameEscaped+="["+eval(objnameEscaped+".length-1")+"]"};
 		oldniva=niva
 	};
 	return xmlobject
