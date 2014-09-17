@@ -7,7 +7,7 @@ Install
 -------
 The script is deliberately place outside the project or solution, so that it can be shared easily.
 
-Of course you can install it in the Modules folder of your project.
+Of course you can install it in the standard (Modules) [http://doc.wakanda.org/About-SSJS-Modules/Configuring-Custom-SSJS-Modules.200-953093.en.html] folder of your project.
 
 Changes
 -------
