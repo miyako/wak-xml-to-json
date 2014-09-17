@@ -21,7 +21,7 @@ Hyphens in element and attribute names are removed.
 
 Tests
 -----
-Launch your browser and open the following URL: [http://127.0.0.1:8081/testServer?path=tests/xml2json.js]
+Launch your browser and open the following URL: http://127.0.0.1:8081/testServer?path=tests/xml2json.js
 
 Example
 -------
