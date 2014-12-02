@@ -7,8 +7,8 @@
   },
   {
   "name":"Modules",
-  "parent":"PROJECT",
-  "path":"../Modules",
+  "parent":"SOLUTION",
+  "path":"Modules",
   "writable":true
   }                        
 ]
