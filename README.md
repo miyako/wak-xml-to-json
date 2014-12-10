@@ -19,6 +19,8 @@ All element names are converted to lowercase.
 
 Hyphens in element and attribute names are removed.
 
+XML namespaces are respected.
+
 Tests
 -----
 Launch your browser and open the following URL: http://127.0.0.1:8081/testServer?path=tests/xml2json.js
