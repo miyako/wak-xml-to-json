@@ -12,3 +12,11 @@ SAMPLE/SAMPLE/SymbolTable.waSymData
 SAMPLE/SAMPLE/SymbolTable.waSym
 
 SAMPLE/SAMPLE/SymbolTable.Match
+
+SAMPLE/SAMPLE Solution/SAMPLE.miyako.waPreferences
+
+*.cacheUAG
+
+SAMPLE/SAMPLE Solution/Directory.cacheUAG
+
+SAMPLE/SAMPLE Solution/sessionID.json

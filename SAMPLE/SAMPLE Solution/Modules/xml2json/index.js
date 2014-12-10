@@ -43,30 +43,34 @@ function attris_to_tags(x){
 }
 
 function parser(xmlcode,ignoretags,debug){
-	xmlobject={};//otherwise the object will inherit previous value, in a CommonJS module context. (miyako)
-	if(!ignoretags){ignoretags=""};
-	xmlcode=xml_escape(xmlcode)
-	xmlcode=xmlcode.replace(/\s*\/>/g,'/>');
-	xmlcode=xmlcode.replace(/<\?[^>]*>/g,"").replace(/<\![^>]*>/g,"");
-	if (!ignoretags.sort){ignoretags=ignoretags.split(",")};
-	var x=no_fast_endings(xmlcode);
-	x=attris_to_tags(x);
-	x=escape(x);
-	x=x.split("%3C").join("<").split("%3E").join(">").split("%3D").join("=").split("%22").join("\"");
-	for (var i=0;i<ignoretags.length;i++){
-		x=x.replace(new RegExp("<"+ignoretags[i]+">","g"),"*$**"+ignoretags[i]+"**$*");
-		x=x.replace(new RegExp("</"+ignoretags[i]+">","g"),"*$***"+ignoretags[i]+"**$*")
-	};
-	x='<JSONTAGWRAPPER>'+x+'</JSONTAGWRAPPER>';
-	var y=xml_to_object(x).jsontagwrapper;
-	if(debug){y=show_json_structure(y,debug)};
-	return y
+	if(typeof xmlcode === 'string'){
+		xmlobject={};//otherwise the object will inherit previous value, in a CommonJS module context. (miyako)
+		if(!ignoretags){ignoretags=""};
+		xmlcode=xml_escape(xmlcode)
+		xmlcode=xmlcode.replace(/\s*\/>/g,'/>');
+		xmlcode=xmlcode.replace(/<\?[^>]*>/g,"").replace(/<\![^>]*>/g,"");
+		if (!ignoretags.sort){ignoretags=ignoretags.split(",")};
+		var x=no_fast_endings(xmlcode);
+		x=attris_to_tags(x);
+		x=escape(x);
+		x=x.split("%3C").join("<").split("%3E").join(">").split("%3D").join("=").split("%22").join("\"");
+		for (var i=0;i<ignoretags.length;i++){
+			x=x.replace(new RegExp("<"+ignoretags[i]+">","g"),"*$**"+ignoretags[i]+"**$*");
+			x=x.replace(new RegExp("</"+ignoretags[i]+">","g"),"*$***"+ignoretags[i]+"**$*")
+		};
+		x='<JSONTAGWRAPPER>'+x+'</JSONTAGWRAPPER>';
+		var y=xml_to_object(x).jsontagwrapper;
+		if(debug){y=show_json_structure(y,debug)};
+		return y
+	}
 }
 
 function xml_escape(str){
-	return str.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, function(a, b){
-		return b.replace(/&/g,'\uFFF9').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&apos;').replace(/"/g,'&quot;').replace(/\uFFF9/g,'&amp;')
-	});
+	if(typeof str === 'string'){
+		return str.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, function(a, b){
+			return b.replace(/&/g,'\uFFF9').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&apos;').replace(/"/g,'&quot;').replace(/\uFFF9/g,'&amp;')
+		});	
+	}
 }
 
 function xml_unescape(str){
@@ -108,13 +112,21 @@ function xml_to_object(xmlcode){
 		var rest=y[i].split(">")[1];
 		if(niva<=oldniva){
 			var tabort=oldniva-niva+1;
-			for (var j=0;j<tabort;j++){objname=objname.substring(0,objname.lastIndexOf("."))}
+			for (var j=0;j<tabort;j++){
+				var m=objname.match(/(.+)\[\".+?\"\]/);
+				objname = m ? m[1] : '';
+				}
 		};
+		tagnamn=tagnamn.replace(/-/g, '').replace(/%0a|%0d|%09|%20/g, '');//colon for namespaces
+		tagnamn=tagnamn.replace(/-/g, '').replace(/%3a/g, ':');
 		tagnamn=tagnamn.replace(/-/g, '').replace(/%3a|%0a|%0d|%09|%20/g, '');
-		objname+="."+tagnamn;
-		var pobject=objname.substring(0,objname.lastIndexOf("."));
+		objname+='[\"'+tagnamn+'"]';
+		var m=objname.match(/(.+)\[\".+?\"\]/);
+		var pobject = m ? m[1] : '';
+				
 		if (eval("typeof "+pobject) != "object"){preeval+=pobject+"={value:"+pobject+"};\n"};
 		var objlast=objname.substring(objname.lastIndexOf(".")+1);
+		
 		var already=false;
 		for (k in eval(pobject)){if(k==objlast){already=true}};
 		var onlywhites=true;
